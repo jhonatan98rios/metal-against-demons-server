@@ -1,4 +1,4 @@
-package com.teixeirarios.metal_against_demons.modules.user;
+package com.teixeirarios.metal_against_demons.modules.user.dtos;
 
 import lombok.Data;
 

@@ -1,5 +1,8 @@
 package com.teixeirarios.metal_against_demons.modules.user;
 
+import com.teixeirarios.metal_against_demons.modules.user.dtos.CreateUserDTO;
+import com.teixeirarios.metal_against_demons.modules.user.dtos.ReadUserDTO;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +16,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<ReadUserDTO> createUser(@RequestBody CreateUserDTO createUserDTO) {
-        ReadUserDTO user = userService.createUser(createUserDTO.getUsername(), createUserDTO.getEmail(), createUserDTO.getPassword());
+    public ResponseEntity<ReadUserDTO> createUser(
+            @Valid
+            @RequestBody
+            CreateUserDTO createUserDTO
+    ) {
+        ReadUserDTO user = userService.createUser(createUserDTO);
         return ResponseEntity.ok(user);
     }
 

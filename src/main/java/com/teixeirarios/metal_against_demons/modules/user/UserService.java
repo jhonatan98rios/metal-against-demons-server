@@ -1,5 +1,7 @@
 package com.teixeirarios.metal_against_demons.modules.user;
 
+import com.teixeirarios.metal_against_demons.modules.user.dtos.CreateUserDTO;
+import com.teixeirarios.metal_against_demons.modules.user.dtos.ReadUserDTO;
 import com.teixeirarios.metal_against_demons.modules.user.exceptions.EmailAlreadyExistsException;
 import com.teixeirarios.metal_against_demons.modules.user.exceptions.UserNotFoundException;
 import com.teixeirarios.metal_against_demons.modules.user.exceptions.UsernameAlreadyExistsException;
@@ -21,22 +23,21 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional
-    public ReadUserDTO createUser(String username, String email, String password) {
-
-        Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(email);
+    public ReadUserDTO createUser(CreateUserDTO createUserDTO) {
+        Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(createUserDTO.getEmail());
         if (existingUserByEmail.isPresent()) {
             throw new EmailAlreadyExistsException("Email is already in use.");
         }
 
-        Optional<UserEntity> existingUserByUsername = userRepository.findByUsername(username);
+        Optional<UserEntity> existingUserByUsername = userRepository.findByUsername(createUserDTO.getUsername());
         if (existingUserByUsername.isPresent()) {
             throw new UsernameAlreadyExistsException("Username is already in use.");
         }
 
         UserEntity user = new UserEntity();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPasswordHash(passwordEncoder.encode(password));
+        user.setUsername(createUserDTO.getUsername());
+        user.setEmail(createUserDTO.getEmail());
+        user.setPasswordHash(passwordEncoder.encode(createUserDTO.getPassword()));
         UserEntity savedUser = userRepository.save(user);
 
         return convertToDTO(savedUser);
