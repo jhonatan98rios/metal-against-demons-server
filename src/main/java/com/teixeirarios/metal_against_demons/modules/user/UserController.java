@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -11,14 +13,14 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserEntity> createUser(@RequestBody UserDTO userDTO) {
-        UserEntity user = userService.createUser(userDTO.getUsername(), userDTO.getEmail(), userDTO.getPassword());
+    public ResponseEntity<ReadUserDTO> createUser(@RequestBody CreateUserDTO createUserDTO) {
+        ReadUserDTO user = userService.createUser(createUserDTO.getUsername(), createUserDTO.getEmail(), createUserDTO.getPassword());
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserEntity> getUserById(@PathVariable Long id) {
-        UserEntity user = userService.getUserById(id);
+    public ResponseEntity<ReadUserDTO> getUserById(@PathVariable Long id) {
+        ReadUserDTO user = userService.getUserById(id);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
@@ -26,11 +28,17 @@ public class UserController {
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<UserEntity> getUserByEmail(@PathVariable String email) {
-        UserEntity user = userService.getUserByEmail(email);
+    public ResponseEntity<ReadUserDTO> getUserByEmail(@PathVariable String email) {
+        ReadUserDTO user = userService.getUserByEmail(email);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ReadUserDTO>> getAllUsers() {
+        List<ReadUserDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 }

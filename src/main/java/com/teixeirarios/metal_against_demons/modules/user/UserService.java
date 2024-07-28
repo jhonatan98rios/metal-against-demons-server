@@ -1,9 +1,16 @@
 package com.teixeirarios.metal_against_demons.modules.user;
 
+import com.teixeirarios.metal_against_demons.modules.user.exceptions.EmailAlreadyExistsException;
+import com.teixeirarios.metal_against_demons.modules.user.exceptions.UserNotFoundException;
+import com.teixeirarios.metal_against_demons.modules.user.exceptions.UsernameAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -14,21 +21,53 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserEntity createUser(String username, String email, String password) {
+    public ReadUserDTO createUser(String username, String email, String password) {
+
+        Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(email);
+        if (existingUserByEmail.isPresent()) {
+            throw new EmailAlreadyExistsException("Email is already in use.");
+        }
+
+        Optional<UserEntity> existingUserByUsername = userRepository.findByUsername(username);
+        if (existingUserByUsername.isPresent()) {
+            throw new UsernameAlreadyExistsException("Username is already in use.");
+        }
+
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(password));
-        return userRepository.save(user);
+        UserEntity savedUser = userRepository.save(user);
+
+        return convertToDTO(savedUser);
     }
 
-    @Transactional
-    public UserEntity getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public ReadUserDTO getUserByEmail(String email) {
+        UserEntity user = userRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+        return convertToDTO(user);
     }
 
-    @Transactional
-    public UserEntity getUserById(Long userId) {
-        return userRepository.findById(userId).orElse(null);
+    public ReadUserDTO getUserById(Long userId) {
+        UserEntity user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        return convertToDTO(user);
+    }
+
+    public List<ReadUserDTO> getAllUsers() {
+        List<UserEntity> users = userRepository.findAll();
+        return users.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ReadUserDTO convertToDTO(UserEntity user) {
+        ReadUserDTO userDTO = new ReadUserDTO();
+        userDTO.setUserId(user.getUserId());
+        userDTO.setUsername(user.getUsername());
+        userDTO.setEmail(user.getEmail());
+        return userDTO;
     }
 }
