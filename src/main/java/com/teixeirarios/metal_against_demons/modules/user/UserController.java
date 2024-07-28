@@ -43,6 +43,15 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/username/{username}")
+    public ResponseEntity<ReadUserDTO> getUserByUsername(@PathVariable String username) {
+        ReadUserDTO user = userService.getUserByUsername(username);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(user);
+    }
+
     @GetMapping
     public ResponseEntity<List<ReadUserDTO>> getAllUsers() {
         List<ReadUserDTO> users = userService.getAllUsers();

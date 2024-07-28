@@ -50,6 +50,13 @@ public class UserService {
         return convertToDTO(user);
     }
 
+    public ReadUserDTO getUserByUsername(String username) {
+        UserEntity user = userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+        return convertToDTO(user);
+    }
+
     public ReadUserDTO getUserById(Long userId) {
         UserEntity user = userRepository
                 .findById(userId)
