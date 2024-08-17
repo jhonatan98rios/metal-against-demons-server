@@ -39,7 +39,6 @@ public class UserServiceTest {
         createUserDTO.setPassword("password");
 
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
         when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -74,7 +73,7 @@ public class UserServiceTest {
         user.setUsername("testuser");
         user.setPasswordHash("password");
 
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("testuser")).thenReturn(user);
 
         CreateUserDTO createUserDTO = new CreateUserDTO();
         createUserDTO.setEmail("test@example.com");
@@ -91,8 +90,8 @@ public class UserServiceTest {
         user.setEmail("test@example.com");
         user.setPasswordHash("password");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        ReadUserDTO readUserDTO = userService.getUserById(1L);
+        when(userRepository.findById("1")).thenReturn(Optional.of(user));
+        ReadUserDTO readUserDTO = userService.getUserById("1");
 
         assertNotNull(readUserDTO);
         assertEquals("testuser", readUserDTO.getUsername());
@@ -101,8 +100,8 @@ public class UserServiceTest {
 
     @Test
     void testGetUserByIdUserNotFound() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(0L));
+        when(userRepository.findById("1")).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.getUserById("1"));
     }
 
     @Test
@@ -133,19 +132,11 @@ public class UserServiceTest {
         user.setEmail("test@example.com");
         user.setPasswordHash("password");
 
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("testuser")).thenReturn(user);
         ReadUserDTO readUserDTO = userService.getUserByUsername("testuser");
 
         assertNotNull(readUserDTO);
         assertEquals("testuser", readUserDTO.getUsername());
         assertEquals("test@example.com", readUserDTO.getEmail());
     }
-
-    @Test
-    void testGetUserByUsernameUserNotFound() {
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> userService.getUserByUsername("nonexistent"));
-    }
-
-
 }

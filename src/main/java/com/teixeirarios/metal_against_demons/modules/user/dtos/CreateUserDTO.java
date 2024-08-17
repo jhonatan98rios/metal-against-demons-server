@@ -1,6 +1,8 @@
 package com.teixeirarios.metal_against_demons.modules.user.dtos;
 
 
+import com.teixeirarios.metal_against_demons.modules.user.UserRole;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -19,4 +21,7 @@ public class CreateUserDTO {
     @NotBlank(message = "Password is mandatory")
     @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
     private String password;
+
+    @Nullable()
+    private UserRole role;
 }
